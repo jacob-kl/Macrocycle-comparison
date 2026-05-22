@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OWL Macrocycle Comparison</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0f11;
+    --surface: #15171a;
+    --border: #252830;
+    --text: #e8eaf0;
+    --muted: #5c6070;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    line-height: 1.5;
+    min-height: 100vh;
+    padding: 40px 24px 80px;
+  }
+
+  header { text-align: center; margin-bottom: 36px; }
+  header h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(32px, 5vw, 64px);
+    letter-spacing: 0.06em;
+    line-height: 1;
+  }
+  header p {
+    color: var(--muted);
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-top: 8px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* ── SELECTOR ── */
+  .selector-bar {
+    max-width: 860px;
+    margin: 0 auto 52px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 22px 28px;
+  }
+  .selector-group { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 220px; }
+  .selector-group label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+  }
+  .selector-group select {
+    background: #1c1f26;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 10px 14px;
+    appearance: none;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  #selA { border-color: rgba(var(--ca-rgb),0.45); }
+  #selB { border-color: rgba(var(--cb-rgb),0.45); }
+  .vs-badge {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 26px;
+    color: var(--border);
+    padding-bottom: 4px;
+    flex-shrink: 0;
+  }
+
+  /* ── SECTION TITLE ── */
+  .sec-title {
+    max-width: 1100px;
+    margin: 0 auto 18px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(20px, 3vw, 34px);
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 10px;
+  }
+
+  /* ── MACROCYCLE GRID ── */
+  .macro-wrap { max-width: 1100px; margin: 0 auto 64px; }
+  .macro-grid {
+    display: grid;
+    grid-template-columns: 68px 1fr 1fr;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .mg-head {
+    padding: 16px 14px;
+    border-bottom: 1px solid var(--border);
+    display: flex; flex-direction: column; gap: 3px;
+  }
+  .mg-head.axis { background: var(--surface); }
+  .mg-head.cola { border-left: 1px solid var(--border); background: rgba(var(--ca-rgb),0.10); }
+  .mg-head.colb { border-left: 1px solid var(--border); background: rgba(var(--cb-rgb),0.10); }
+  .mg-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 19px;
+    letter-spacing: 0.08em;
+  }
+  .mg-name.cola { color: var(--ca); }
+  .mg-name.colb { color: var(--cb); }
+  .mg-sub { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
+
+  .mg-meso {
+    grid-column: 1 / -1;
+    background: #1a1c20;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 7px 14px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+  }
+
+  .mg-axis {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 10px 4px; gap: 1px;
+  }
+  .mg-wn { font-family: 'Bebas Neue', sans-serif; font-size: 16px; color: var(--muted); line-height: 1; }
+  .mg-wt { font-family: 'DM Mono', monospace; font-size: 7px; color: #353840; text-transform: uppercase; }
+  .mg-axis.deload .mg-wn { color: #30343c; }
+
+  .mg-cell {
+    border-top: 1px solid var(--border);
+    border-left: 1px solid var(--border);
+    padding: 11px 13px;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .mg-cell.cola { background: rgba(var(--ca-rgb),0.07); }
+  .mg-cell.colb { background: rgba(var(--cb-rgb),0.07); }
+  .mg-cell.deload { opacity: 0.55; }
+
+  .mg-hl { font-weight: 600; font-size: 11.5px; color: var(--text); }
+  .mg-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+  .tag {
+    display: inline-flex; padding: 2px 6px;
+    border-radius: 3px; font-family: 'DM Mono', monospace;
+    font-size: 8.5px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap;
+  }
+  .tv-h  { background: rgba(58,159,224,0.22); color: #72b8e8; }
+  .tv-m  { background: rgba(100,100,130,0.22); color: #8888aa; }
+  .tv-l  { background: rgba(50,50,70,0.3); color: #606080; }
+  .ti-pk { background: rgba(224,92,58,0.38); color: #ff8060; border:1px solid rgba(224,92,58,0.38); }
+  .ti-h  { background: rgba(224,92,58,0.2); color: #e88a72; }
+  .ti-m  { background: rgba(224,180,58,0.2); color: #d4b060; }
+  .ti-l  { background: rgba(126,200,122,0.2); color: #7ec87a; }
+  .tf    { background: rgba(200,200,255,0.07); color: #9090b0; }
+
+  .mg-desc { font-size: 10.5px; color: #707888; line-height: 1.55; }
+  .mg-focus {
+    font-family: 'DM Mono', monospace; font-size: 9px; color: #454a58;
+    padding-top: 4px; border-top: 1px dashed #252830;
+  }
+
+  /* ── SUMMARY CARDS ── */
+  .summ-wrap {
+    max-width: 1100px; margin: 0 auto 64px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+  }
+  .summ-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; }
+  .summ-card h3 { font-family: 'Bebas Neue', sans-serif; font-size: 16px; letter-spacing: 0.08em; margin-bottom: 12px; }
+  .summ-card h3.cola { color: var(--ca); }
+  .summ-card h3.colb { color: var(--cb); }
+  .attr-list { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+  .attr-list li { display: flex; gap: 9px; font-size: 11.5px; color: #7a8090; line-height: 1.4; }
+  .attr-list li::before { content: '→'; font-family: 'DM Mono', monospace; flex-shrink: 0; }
+  .attr-list li span { color: var(--text); font-weight: 600; }
+
+  /* ── EXERCISE TABLE ── */
+  .ex-wrap { max-width: 1100px; margin: 0 auto 80px; }
+  .ex-scroll { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; }
+  .ex-table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+  .ex-table thead tr { background: #1a1c22; }
+  .ex-table th {
+    padding: 13px 14px; text-align: left;
+    font-family: 'Bebas Neue', sans-serif; font-size: 15px; letter-spacing: 0.1em;
+    border-bottom: 2px solid var(--border); white-space: nowrap;
+  }
+  .th-cat { color: var(--muted); width: 20%; }
+  .th-a   { color: var(--ca); width: 40%; border-left: 1px solid var(--border); }
+  .th-b   { color: var(--cb); width: 40%; border-left: 1px solid var(--border); }
+
+  .ex-table tbody tr:nth-child(even):not(.sec-row) { background: rgba(255,255,255,0.016); }
+  .ex-table tbody tr:hover:not(.sec-row) { background: rgba(255,255,255,0.032); }
+
+  .sec-row td {
+    background: #1a1d24; color: var(--muted);
+    font-family: 'Bebas Neue', sans-serif; font-size: 12px; letter-spacing: 0.18em;
+    text-transform: uppercase; padding: 9px 14px;
+    border-top: 2px solid var(--border); border-bottom: 1px solid var(--border);
+  }
+  td.td-n { padding: 10px 14px; font-weight: 600; font-size: 11.5px; color: var(--text); vertical-align: top; border-bottom: 1px solid #1c1e24; line-height: 1.4; }
+  td.td-a, td.td-b {
+    padding: 10px 14px; vertical-align: top;
+    border-bottom: 1px solid #1c1e24; border-left: 1px solid var(--border);
+    line-height: 1.6; color: #8a92a8; font-size: 11px;
+  }
+  td.td-a { background: rgba(var(--ca-rgb),0.035); }
+  td.td-b { background: rgba(var(--cb-rgb),0.035); }
+  td.absent { color: #35404e !important; font-style: italic; font-size: 10.5px; }
+
+  @media (max-width: 680px) {
+    .macro-grid { grid-template-columns: 44px 1fr 1fr; }
+    .mg-name { font-size: 13px; }
+    .summ-wrap { grid-template-columns: 1fr; }
+    .selector-bar { flex-direction: column; }
+    .vs-badge { padding-bottom: 0; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Olympic Weightlifting</h1>
+  <p>12-Week Macrocycle Comparison &nbsp;·&nbsp; 3 × 4-Week Mesocycles</p>
+</header>
+
+<!-- SELECTOR -->
+<div class="selector-bar">
+  <div class="selector-group">
+    <label id="labelA" style="color:#e05c3a">Method A</label>
+    <select id="selA" onchange="render()">
+      <option value="chinese" selected>Chinese</option>
+      <option value="bulgarian">Bulgarian</option>
+      <option value="soviet">Soviet / Russian</option>
+      <option value="catalyst">Catalyst Athletics</option>
+      <option value="pendlay">Pendlay</option>
+      <option value="klokov">Klokov / Modern Russian</option>
+    </select>
+  </div>
+  <div class="vs-badge">VS</div>
+  <div class="selector-group">
+    <label id="labelB" style="color:#3a9fe0">Method B</label>
+    <select id="selB" onchange="render()">
+      <option value="chinese">Chinese</option>
+      <option value="bulgarian" selected>Bulgarian</option>
+      <option value="soviet">Soviet / Russian</option>
+      <option value="catalyst">Catalyst Athletics</option>
+      <option value="pendlay">Pendlay</option>
+      <option value="klokov">Klokov / Modern Russian</option>
+    </select>
+  </div>
+</div>
+
+<!-- MACROCYCLE -->
+<div class="sec-title" id="sec1">12-Week Macrocycle</div>
+<div class="macro-wrap">
+  <div class="macro-grid" id="macroGrid"></div>
+</div>
+
+<!-- SUMMARY -->
+<div class="sec-title" id="sec2">Methodology Overview</div>
+<div class="summ-wrap" id="summWrap"></div>
+
+<!-- EXERCISES -->
+<div class="sec-title" id="sec3">Exercise Library</div>
+<div class="ex-wrap">
+  <div class="ex-scroll">
+    <table class="ex-table" id="exTable"></table>
+  </div>
+</div>
+
+<script>
+// ── COLOR PALETTE ──────────────────────────────────────────────────────────
+const COLORS = {
+  chinese:   { hex: '#e05c3a', rgb: '224,92,58'   },
+  bulgarian: { hex: '#3a9fe0', rgb: '58,159,224'  },
+  soviet:    { hex: '#c0392b', rgb: '192,57,43'   },
+  catalyst:  { hex: '#8e44ad', rgb: '142,68,173'  },
+  pendlay:   { hex: '#16a085', rgb: '22,160,133'  },
+  klokov:    { hex: '#d35400', rgb: '211,84,0'    },
+};
+
+// ── METHODOLOGY DATA ───────────────────────────────────────────────────────
+const METHODS = {
+
+  // ══════════════════════════════════════════════
+  chinese: {
+    name: 'Chinese',
+    sub: 'Periodized · High Volume · Technical Mastery',
+    summary: [
+      ['Philosophy',      'Volume builds the base; intensity expresses it'],
+      ['Volume',          'Very high early → systematically reduced through the macrocycle'],
+      ['Intensity',       'Percentage-based, predictable progression (70% → 97%)'],
+      ['Frequency',       '5–6×/week with planned structure and rest days'],
+      ['Squat Emphasis',  'Back squat is the cornerstone — programmed 3–4×/week at very high %'],
+      ['Pull Emphasis',   'Dedicated pulls at 100–110% of lift maxes — among the highest of any method'],
+      ['Accessories',     'Wide base: RDLs, good mornings, core, pressing, snatch balance, blocks'],
+      ['Deloads',         'Scheduled and aggressive — sharp volume drops every 4th week'],
+      ['Signature Trait', 'Pull strength must exceed competition lift strength'],
+      ['Risk',            'Less competition specificity early; complex programming requires a coach'],
+    ],
+    weeks: [
+      // MESO 1
+      { hl:'Volume Foundation',     tags:['tv-h','ti-m','tf'], tv:'Vol: High', ti:'Int: 70–75%', fr:'5–6×/wk', desc:'Snatch + C&J doubles/triples across sets. Pulls, squats, accessories. Emphasis on positional drilling and technical refinement.', focus:'Focus: Technical mastery under moderate load' },
+      { hl:'Volume Load',           tags:['tv-h','ti-m','tf'], tv:'Vol: High', ti:'Int: 72–78%', fr:'5–6×/wk', desc:'Slight intensity increase. Hang variations added to reinforce positions. Snatch balance and OHS introduced.', focus:'Focus: Accumulate volume before intensity ramp' },
+      { hl:'Peak Accumulation',     tags:['tv-h','ti-m','tf'], tv:'Vol: Peak', ti:'Int: 75–80%', fr:'5–6×/wk', desc:'Highest volume week. Heavy triples and doubles. Back squats hitting 90–100% of squat max. Managing fatigue is critical.', focus:'Focus: Overreaching stimulus, recovery planned' },
+      { hl:'Deload',                tags:['tv-l','ti-l','tf'], tv:'Vol: −40%', ti:'Int: 65–70%', fr:'3–4×/wk', desc:'Sharp volume drop. Singles and doubles at sub-max weights. CNS and structural recovery before Meso 2.', focus:'Focus: Supercompensation, active recovery', deload:true },
+      // MESO 2
+      { hl:'Intensity Ramp',        tags:['tv-m','ti-h','tf'], tv:'Vol: Mod', ti:'Int: 78–83%', fr:'5×/wk', desc:'Volume decreases, intensity climbs. Shift toward doubles and singles. Floor emphasis returns on snatch and C&J.', focus:'Focus: Intensity block begins in earnest' },
+      { hl:'Heavy Singles Intro',   tags:['tv-m','ti-h','tf'], tv:'Vol: Mod', ti:'Int: 82–87%', fr:'5×/wk', desc:'Begin hitting heavy singles on competition lifts. Squats at 90–95%. Pulls remain at volume while intensity of lifts rises.', focus:'Focus: Transition to competition specificity' },
+      { hl:'Peak Intensification',  tags:['tv-m','ti-pk','tf'], tv:'Vol: Low-Mod', ti:'Int: 85–92%', fr:'5×/wk', desc:'Heaviest training week of Meso 2. Multiple near-max singles. Back squat into 100%+ territory. Fatigue managed with rest days.', focus:'Focus: Overreach before final deload' },
+      { hl:'Deload',                tags:['tv-l','ti-l','tf'], tv:'Vol: −40%', ti:'Int: 70–75%', fr:'3–4×/wk', desc:'Standard deload before peaking block. Maintain movement patterns at low intensity. Structural and CNS recovery.', focus:'Focus: Prepare for competition peak', deload:true },
+      // MESO 3
+      { hl:'Peak Block Entry',      tags:['tv-l','ti-pk','tf'], tv:'Vol: Low', ti:'Int: 88–93%', fr:'4–5×/wk', desc:'Volume stripped down. Heavy singles dominate. Accessory work nearly eliminated. Session structure mirrors competition.', focus:'Focus: Competition specificity, express strength' },
+      { hl:'Heavy Singles Block',   tags:['tv-l','ti-pk','tf'], tv:'Vol: Low', ti:'Int: 90–97%', fr:'4–5×/wk', desc:'Singles at 90%+ across snatch and C&J. Back squats peak. Attempt comp openers. Full session dress rehearsal.', focus:'Focus: Lock in openers, confirm readiness' },
+      { hl:'Taper',                 tags:['tv-l','ti-h','tf'],  tv:'Vol: Minimal', ti:'Int: 88–93%', fr:'3–4×/wk', desc:'Significant volume reduction. Maintain intensity through heavy singles. Prioritize recovery and mental readiness.', focus:'Focus: Taper, preserve neural output' },
+      { hl:'Competition Week',      tags:['tv-l','ti-pk','tf'], tv:'Vol: Minimal', ti:'Int: Opener only', fr:'1–2×/wk', desc:'Mon/Tue: Opener singles only. Wed–Fri: Rest. Saturday: Compete. Athlete arrives fresh, structural fatigue dissipated.', focus:'Strength: Structural resilience, peak freshness', deload:true },
+    ],
+    exercises: {
+      'Snatch Variations': {
+        'Snatch (Full)':              '5×3 early → 5×1 late. 70–97%. Core primary lift every session.',
+        'Hang Snatch – Above Knee':   '4×3 @ 70–80%. M1–M2. Reinforces second pull aggression.',
+        'Hang Snatch – Below Knee':   '3×3 @ 65–75%. M1–M2. Back angle and lat engagement.',
+        'Power Snatch':               '3×3 @ 65–75%. Speed/technique. Often in complexes PS+Snatch.',
+        'Snatch from Blocks':         '4×3 @ 75–85%. Overloads second pull; reduces floor fatigue.',
+        'Muscle Snatch':              'Light. Warm-up/accessory. Lat strength and high elbow habit.',
+        'Snatch Balance':             '4×3 @ 85–100% snatch. Receiving position strength.',
+        'Drop Snatch':                '3×3 @ 75–90% snatch. Speed under bar; no re-bend after extension.',
+        'Snatch Pull + Snatch':       '4×(1+2) @ 75–85%. Classic Chinese complex.',
+      },
+      'Clean & Jerk Variations': {
+        'Clean & Jerk (Full)':        '5×(2+1) early → 5×(1+1) late. Volume then intensity arc.',
+        'Clean (No Jerk)':            '5×3 @ 75–85%. Independent clean volume without taxing the jerk.',
+        'Hang Clean – Above/Below':   '4×3 @ 70–80%. Mirrors hang snatch usage. Position and timing.',
+        'Power Clean':                '3×3 @ 70–80%. Forces aggressive pull. Complexes PC+Clean.',
+        'Clean from Blocks':          '4×3 @ 80–88%. Overloads second pull.',
+        'Jerk from Rack':             '5×2–3 @ 78–90%. Treated as an independent lift.',
+        'Push/Power Jerk':            '4×3 @ 70–80%. Reinforces bar path and dip-drive.',
+        'Behind-the-Neck Jerk':       '3×3 @ 75–85%. Grooves receiving position and footwork.',
+      },
+      'Squats': {
+        'Back Squat':                 '3–4×/wk. 3–5×5 @ 75–87% M1 → 100%+ M3. Cornerstone squat.',
+        'Front Squat':                '2–3×/wk. 4×3–5 @ 80–90% FS max. Programmed after main lifts.',
+        'Overhead Squat':             '4×3 @ 70–80% snatch. Technical builder; heavy M1 emphasis.',
+        'Pause Front Squat (2–3s)':   '3×3 @ 70–80% FS. Bottom-position strength. M1–M2.',
+        'Pause Back Squat (2–3s)':    '3×3 @ 70–80% BS. Upright posture reinforcement. M1.',
+      },
+      'Pulls': {
+        'Snatch Pull':                '4×4 @ 100–110% snatch max. Defining feature. Pull strength > lift strength.',
+        'Clean Pull':                 '4×4 @ 100–110% clean max. Same philosophy as snatch pull.',
+        'Snatch Pull from Deficit':   '4×3 @ 90–100% snatch. 2–4" platform. First-pull strength.',
+        'Clean Pull from Deficit':    '4×3 @ 95–105% clean. Floor position and strength.',
+        'Snatch High Pull':           '3×4 @ 80–90% snatch. Second pull and high elbow work.',
+        'Romanian Deadlift':          '3×5 @ moderate. Posterior chain. 1–2×/wk M1.',
+      },
+      'Pressing & Overhead': {
+        'Strict Press':               '4×5 @ moderate. Overhead strength for jerk lockout. M1–M2.',
+        'Push Press':                 '4×4 @ moderate-heavy. Bridges pressing and jerk mechanics. M1–M2.',
+        'Jerk Recovery / Support':    '3×5–10s @ 100–115% jerk. Supramaximal hold in receiving position.',
+      },
+      'Accessories': {
+        'Good Morning':               '3×8–10 @ moderate. Lower back and hamstrings. M1.',
+        'GHD / Hyperextension':       '3×15–20. Posterior chain. All mesos as session finisher.',
+        'Core / Ab Work':             '3–4×/wk as finisher. Planks, GHD sit-ups, cable rotations.',
+        'Snatch Deadlift (slow)':     'Positional drill. Slow controlled pull. Warm-up ramp.',
+        'Segment Snatch/Clean':       'Pause at shin, knee, hip. Technical drilling. Heavy M1 use.',
+      },
+    },
+  },
+
+  // ══════════════════════════════════════════════
+  bulgarian: {
+    name: 'Bulgarian',
+    sub: 'Daily Max · Autoregulation · Neural Adaptation',
+    summary: [
+      ['Philosophy',      'Daily exposure to max loads breeds adaptation — specificity above all'],
+      ['Volume',          'Very low — singles only. Back-offs at 90% of day\'s max'],
+      ['Intensity',       'Daily training max, autoregulated entirely by feel and readiness'],
+      ['Frequency',       '6×/week, sometimes twice daily; no long tapers or rest weeks'],
+      ['Squat Emphasis',  'Front squat to daily max every session — treated as the 4th competition lift'],
+      ['Pull Emphasis',   'None. Competition lifts ARE the pull training. Dedicated pulls are redundant'],
+      ['Accessories',     'Almost none by design. Snatch balance is the one exception'],
+      ['Deloads',         'Subtle — frequency maintained, intensity backed to 80–85% of recent max'],
+      ['Signature Trait', 'Daily massage was a non-negotiable program requirement at national level'],
+      ['Risk',            'High injury risk without robust base; requires experience and recovery infrastructure'],
+    ],
+    weeks: [
+      { hl:'Daily Max + Back-Off',     tags:['tv-l','ti-h','tf'], tv:'Vol: Low', ti:'Int: Daily Max', fr:'6×/wk', desc:'Work to a daily training max on snatch and C&J each session. 1–2 back-off singles at 90% of the day\'s max. Front squat to daily max follows.', focus:'Focus: Neural adaptation, position under near-max load' },
+      { hl:'Daily Max Intensification',tags:['tv-l','ti-h','tf'], tv:'Vol: Low', ti:'Int: Daily Max+', fr:'6×/wk', desc:'Attempt slightly higher daily maxes as adaptation begins. Pause squats for positional strength may be added. Minimal accessory work.', focus:'Focus: Pushing the daily max ceiling incrementally' },
+      { hl:'Competition Simulation',   tags:['tv-l','ti-pk','tf'], tv:'Vol: Low', ti:'Int: Near Max', fr:'6×/wk', desc:'Introduce comp-style singles. Attempt session PRs. Begin tracking good days vs. bad days — autoregulate based on readiness.', focus:'Focus: Autoregulated daily maxes' },
+      { hl:'Deload',                   tags:['tv-l','ti-m','tf'], tv:'Vol: −30%', ti:'Int: 80–85% DM', fr:'5×/wk', desc:'Frequency maintained, volume trimmed. Daily maxes capped at 80–85% of recent highs. Some days are feel-good sessions.', focus:'Focus: Maintain neural groove, reduce fatigue', deload:true },
+      { hl:'Daily Max Continuation',   tags:['tv-l','ti-h','tf'], tv:'Vol: Low', ti:'Int: Daily Max', fr:'6×/wk', desc:'No structural change. Bulgarian method continues. Athlete now adapted — daily maxes should climb post-deload supercompensation.', focus:'Focus: Exploit post-deload supercompensation' },
+      { hl:'Push for PRs',             tags:['tv-l','ti-pk','tf'], tv:'Vol: Low', ti:'Int: Near Max', fr:'6×/wk', desc:'Attempt session PRs on good days. Bulgarian method rewards athletes here — accumulated adaptation from M1 starts expressing itself.', focus:'Focus: Express adaptation, chase PRs' },
+      { hl:'High Frequency Max Effort',tags:['tv-l','ti-pk','tf'], tv:'Vol: Low', ti:'Int: Max Effort', fr:'6×/wk', desc:'Continue daily max structure. Athlete should see climbing session maxes. No deload planned — Bulgarian relies on adaptation through continuation.', focus:'Focus: Build neural output ceiling' },
+      { hl:'Deload',                   tags:['tv-l','ti-m','tf'], tv:'Vol: −30%', ti:'Int: 80–85% DM', fr:'5×/wk', desc:'Light reduction in volume. Frequency maintained. Athletes stay in the groove — Bulgarian deloads are subtle and deliberate.', focus:'Focus: Stay sharp, reduce accumulated fatigue', deload:true },
+      { hl:'Daily Max — Peak Phase',   tags:['tv-l','ti-pk','tf'], tv:'Vol: Low', ti:'Int: True Max Pursuit', fr:'6×/wk', desc:'Begin targeting true 1RMs in sessions. Comp-style openers, seconds, thirds practiced. Full competition simulation sessions introduced.', focus:'Focus: PR sessions, comp simulation' },
+      { hl:'Competition Simulation',   tags:['tv-l','ti-pk','tf'], tv:'Vol: Very Low', ti:'Int: Max / PR', fr:'6×/wk', desc:'Multiple full comp simulations throughout the week. Athlete knows their numbers by feel. Autoregulation fully dialed.', focus:'Focus: Confidence, comp readiness, opening numbers' },
+      { hl:'Taper',                    tags:['tv-l','ti-h','tf'], tv:'Vol: Minimal', ti:'Int: 85–90% DM', fr:'5×/wk', desc:'Pull back from max-effort sessions. Work to comfortable heavy singles at 85–90%. Keep frequency to maintain groove without draining reserves.', focus:'Focus: Stay sharp, not heavy' },
+      { hl:'Competition Week',         tags:['tv-l','ti-pk','tf'], tv:'Vol: Minimal', ti:'Int: Opener only', fr:'2–3×/wk', desc:'Mon/Tue: Comp openers. May train up to 2 days before comp to stay in the groove. Bulgarian athletes do not like long tapers.', focus:'Strength: Neural sharpness, no long taper needed', deload:true },
+    ],
+    exercises: {
+      'Snatch Variations': {
+        'Snatch (Full)':            'Every session, every day. Daily training max + 1–2 back-offs @ 90% of day\'s max.',
+        'Power Snatch':             'Diagnostic tool. If PS feels heavy, pull mechanics are off. Work to comfortable heavy single.',
+        'Snatch Balance':           'The ONE supplemental movement. Treated as the 4th primary lift — daily training max, every session.',
+        'Overhead Squat':           'Snatch warm-up progression. 2–3×3 @ light-moderate. Not typically taken to a max.',
+        'Hang Snatch':              '— Not present. Competition lift provides all necessary pull and position work.',
+        'Snatch from Blocks':       '— Not present.',
+        'Snatch Pulls':             '— Absent by philosophy. The competition snatch IS the pull training.',
+      },
+      'Clean & Jerk Variations': {
+        'Clean & Jerk (Full)':      'Every session. Daily max. C&J always performed together — never separated.',
+        'Jerk from Rack':           'Sometimes added as a second jerk session to accumulate jerk volume. Daily max from rack.',
+        'Power Clean + Jerk':       'Diagnostic / lighter days. Signals whether pull is generating enough height.',
+        'Clean (No Jerk)':          '— Rare. Occasionally on very high-fatigue days. Not a program staple.',
+        'Hang Clean':               '— Not present.',
+        'Clean from Blocks':        '— Not present.',
+        'Push/Power Jerk':          '— Not present as a separate movement.',
+      },
+      'Squats': {
+        'Front Squat':              'THE primary squat. Every session to a daily training max — same structure as competition lifts.',
+        'Back Squat':               '— Rarely present. If included in a Bulgarian-influenced program: daily max single only, never for volume.',
+        'Overhead Squat':           'Warm-up primer. 2–3 sets of 3. Not typically taken to a max.',
+        'Pause Squats':             '— Not present.',
+      },
+      'Pulls': {
+        'Dedicated Pulls':          '— Absent by design. Philosophy: competition lifts ARE the pull training. Dedicated pulls considered redundant.',
+        'Snatch/Clean Pull':        '— Rare exceptions in modern Bulgarian-influenced programs. Heavy single only if present at all.',
+        'Deficit Pulls':            '— Not present.',
+        'Romanian Deadlift':        '— Not present.',
+      },
+      'Pressing & Overhead': {
+        'All Pressing Movements':   '— Not present. Overhead strength maintained exclusively through the competition lifts and snatch balance.',
+        'Jerk Recovery':            '— Not typically present.',
+      },
+      'Accessories': {
+        'All Accessories':          '— Absent by design. Near-total elimination of accessory work is the defining feature of Bulgarian programming.',
+        'Daily Massage':            '✓ Non-negotiable. The original national team had daily massage and physiotherapy. This replaced accessory work as the recovery modality. Without it, injury risk is significantly elevated.',
+      },
+    },
+  },
+
+  // ══════════════════════════════════════════════
+  soviet: {
+    name: 'Soviet / Russian',
+    sub: 'Science-Based · Volume Index · GPP · Wide Variation',
+    summary: [
+      ['Philosophy',      'Training as applied sport science — volume index, zone-based intensity, periodization'],
+      ['Volume',          'High and systematically tracked via Volume Index (sets × reps × weight)'],
+      ['Intensity',       'Zone-based: 70–75%, 75–80%, 80–85%, 85–90%, 90%+ tracked across sessions'],
+      ['Frequency',       '5–6×/week with GPP components in accumulation phases'],
+      ['Squat Emphasis',  'Both front and back squat programmed heavily; squat is a separate training block'],
+      ['Pull Emphasis',   'Dedicated pulls at 100–105% of lift maxes; snatch and clean pulls both heavy'],
+      ['Accessories',     'Wide selection; general physical preparation (GPP) includes running, gymnastics, throws'],
+      ['Deloads',         'Scheduled with scientific precision — volume drops ~30–40% every 4th week'],
+      ['Signature Trait', 'Medvedyev/Vorobyev codified this into actual sport science; most documented method'],
+      ['Risk',            'Complex to program correctly; GPP component rare in modern club settings'],
+    ],
+    weeks: [
+      { hl:'GPP + Volume Foundation', tags:['tv-h','ti-l','tf'], tv:'Vol: High', ti:'Int: 68–74%', fr:'5–6×/wk', desc:'General physical preparation alongside technical lifting. Zone 1–2 work dominates. Snatch and C&J triples at submaximal load. Running, gymnastics, medicine ball work included.', focus:'Focus: Build GPP base, establish movement quality' },
+      { hl:'Technical Volume Block',  tags:['tv-h','ti-m','tf'], tv:'Vol: High', ti:'Int: 72–78%', fr:'5–6×/wk', desc:'GPP reduces, technical volume increases. Wide variation in lifts: hang work, blocks, complexes. Volume Index climbing steadily. Squats and pulls heavy.', focus:'Focus: Accumulate technical volume across variations' },
+      { hl:'Peak Accumulation',       tags:['tv-h','ti-m','tf'], tv:'Vol: Peak', ti:'Int: 75–82%', fr:'5–6×/wk', desc:'Highest Volume Index week. 5–6 variations per session. Pulls at 100–105%. Back squats approaching 90–95%. Fatigue managed through zone distribution.', focus:'Focus: Maximum volume stimulus before deload' },
+      { hl:'Deload',                  tags:['tv-l','ti-l','tf'], tv:'Vol: −35%', ti:'Int: 65–72%', fr:'4×/wk', desc:'Systematic reduction per Medvedyev\'s periodization model. Light technical work. GPP maintained. Volume Index drops sharply.', focus:'Focus: Supercompensation, planned recovery', deload:true },
+      { hl:'Intensification Entry',   tags:['tv-m','ti-m','tf'], tv:'Vol: Mod', ti:'Int: 76–82%', fr:'5×/wk', desc:'Volume decreases, intensity zones shift upward. Zone 3 (80–85%) becomes the primary work zone. Exercise variation narrows toward competition lifts.', focus:'Focus: Intensity zones shift — more 80–85% work' },
+      { hl:'Intensity Build',         tags:['tv-m','ti-h','tf'], tv:'Vol: Mod', ti:'Int: 80–86%', fr:'5×/wk', desc:'Zone 3–4 (80–90%) work increases. More singles and doubles. Pulls remain heavy. Accessories reduce. Technical refinement at heavy loads.', focus:'Focus: Accumulate work in 80–90% zone' },
+      { hl:'Peak Intensity Week',     tags:['tv-m','ti-pk','tf'], tv:'Vol: Mod-Low', ti:'Int: 85–92%', fr:'5×/wk', desc:'Heaviest week of Meso 2. Zone 4–5 (85%+) dominant. Near-max singles. Squats pushing into 95–100%+ territory. Managed overreach.', focus:'Focus: Overreach before deload' },
+      { hl:'Deload',                  tags:['tv-l','ti-l','tf'], tv:'Vol: −35%', ti:'Int: 68–75%', fr:'3–4×/wk', desc:'Scientific deload before peaking block. Volume Index drops sharply. Technique focus at low intensity.', focus:'Focus: Prepare for competition peak', deload:true },
+      { hl:'Peaking Entry',           tags:['tv-l','ti-h','tf'], tv:'Vol: Low', ti:'Int: 85–92%', fr:'4–5×/wk', desc:'Volume stripped. Heavy singles dominate. Exercise selection narrows to competition lifts and front squats. Zone 5 (90%+) appears.', focus:'Focus: Express accumulated fitness' },
+      { hl:'Heavy Singles Block',     tags:['tv-l','ti-pk','tf'], tv:'Vol: Low', ti:'Int: 88–95%', fr:'4–5×/wk', desc:'Primary focus: 90%+ singles on snatch and C&J. Attempt comp openers. Squats peak. Some competition simulation.', focus:'Focus: Lock in competition numbers' },
+      { hl:'Taper',                   tags:['tv-l','ti-h','tf'], tv:'Vol: Minimal', ti:'Int: 85–92%', fr:'3–4×/wk', desc:'Significant volume reduction. Maintain intensity through heavy singles. Structural and CNS fatigue dissipates.', focus:'Focus: Taper, arrive fresh' },
+      { hl:'Competition Week',        tags:['tv-l','ti-pk','tf'], tv:'Vol: Minimal', ti:'Int: Opener only', fr:'1–2×/wk', desc:'Opener singles only. Full rest before competition. Soviet athletes peak with structural resilience from heavy squats and pulls.', focus:'Strength: Science-based peak, structural resilience', deload:true },
+    ],
+    exercises: {
+      'Snatch Variations': {
+        'Snatch (Full)':              'Primary. 5×3–5 M1 → 5×1–2 M3. Zone-tracked intensity. Wide variation.',
+        'Hang Snatch – Above/Below':  '4×3 @ 70–80%. Heavy M1–M2 presence. Technical variation staple.',
+        'Power Snatch':               '3×3 @ 65–75%. Diagnostic and speed developer. Present all mesos.',
+        'Snatch from Blocks':         '4×3 @ 75–85%. Overloads specific pull phases. M1–M2.',
+        'Snatch Balance':             '4×3 @ 85–100% snatch. Technical positional builder. M1–M2.',
+        'Snatch Pull + Snatch':       '4×(1+2) @ 80–90%. Classic Soviet complex. Common in M1.',
+        'Segment Snatch':             'Pause at shin/knee/hip. Heavy M1 technical drilling.',
+        'Muscle Snatch':              'Warm-up and lat development. Light, M1.',
+      },
+      'Clean & Jerk Variations': {
+        'Clean & Jerk (Full)':        '5×(2+1) M1 → 5×(1+1) M3. Volume then intensity arc.',
+        'Clean (No Jerk)':            '5×3 @ 75–85%. Independent clean volume. M1–M2.',
+        'Hang Clean – Above/Below':   '4×3 @ 70–80%. Technical variation. M1–M2.',
+        'Clean from Blocks':          '4×3 @ 80–88%. Second pull overload. M1–M2.',
+        'Jerk from Rack':             '5×2–3 @ 78–90%. Treated as independent lift. M1–M2.',
+        'Power Clean + Jerk':         '3×3 @ 70–80%. Speed and diagnostic tool.',
+        'Segment Clean':              'Pause positions. Heavy technical use in M1.',
+      },
+      'Squats': {
+        'Back Squat':                 '3–4×/wk. 4–5×5 @ 75–90%. Volume tracked as part of Volume Index.',
+        'Front Squat':                '2–3×/wk. 4×3–5 @ 80–90% FS. Critical movement.',
+        'Overhead Squat':             '4×3 @ 70–80% snatch. Technical builder.',
+        'Pause Front Squat (2–3s)':   '3×3 @ 70–80% FS. Positional strength. M1.',
+        'Pause Back Squat':           '3×3. Upright posture and bottom-position strength. M1.',
+      },
+      'Pulls': {
+        'Snatch Pull':                '4×4 @ 100–105% snatch. Systematic pull overload — core of Soviet method.',
+        'Clean Pull':                 '4×4 @ 100–108% clean. Pull strength above lift strength.',
+        'Snatch Pull from Deficit':   '4×3 @ 90–100% snatch. First pull strength.',
+        'Clean Pull from Deficit':    '4×3 @ 95–105% clean. Floor position.',
+        'Snatch/Clean High Pull':     '3×4. Second pull mechanics. Technical phase.',
+        'Romanian Deadlift':          '3×5 @ moderate. Posterior chain. M1–M2.',
+      },
+      'Pressing & Overhead': {
+        'Strict Press':               '4×5. Overhead strength. M1–M2.',
+        'Push Press':                 '4×4. Jerk mechanics bridge. M1–M2.',
+        'Jerk Recovery':              '3×5–10s @ supramaximal. Receiving confidence.',
+      },
+      'GPP & Accessories': {
+        'Running / Sprinting':        '✓ GPP component in M1 accumulation. Short distance, athletic development.',
+        'Gymnastics / Tumbling':      '✓ GPP. Soviet national teams included gymnastics for body awareness.',
+        'Medicine Ball Throws':       '✓ Explosive power development. GPP phase M1.',
+        'Good Morning':               '3×8–10. Posterior chain. M1.',
+        'GHD / Hyperextension':       'All mesos as finisher.',
+        'Core Work':                  'Systematic. Part of every session in M1–M2.',
+      },
+    },
+  },
+
+  // ══════════════════════════════════════════════
+  catalyst: {
+    name: 'Catalyst Athletics',
+    sub: 'American · Soviet-Influenced · Pull-Heavy · Documented',
+    summary: [
+      ['Philosophy',      'Systematic periodization with emphasis on pull strength and positional skill'],
+      ['Volume',          'Moderate to high; well-documented sets/reps across all phases'],
+      ['Intensity',       'Percentage-based; similar arc to Chinese but with more explicit pull programming'],
+      ['Frequency',       '4–5×/week; more accessible than Chinese or Bulgarian frequency demands'],
+      ['Squat Emphasis',  'Both front and back squat; front squat a cornerstone after every C&J session'],
+      ['Pull Emphasis',   'Very high pull volume; pull-to-lift ratio mirrors Chinese philosophy'],
+      ['Accessories',     'Snatch balance, OHS, jerk work, some posterior chain; leaner than Chinese'],
+      ['Deloads',         'Scheduled every 4th week with clear percentage drops'],
+      ['Signature Trait', 'Most documented American method; Greg Everett\'s books are primary reference texts'],
+      ['Risk',            'Less accessible than simpler programs; requires coaching background to implement'],
+    ],
+    weeks: [
+      { hl:'Volume Foundation',       tags:['tv-h','ti-m','tf'], tv:'Vol: High', ti:'Int: 70–76%', fr:'5×/wk', desc:'Snatch + C&J doubles and triples. Pulls at 95–105%. Front squats heavy. Snatch balance introduced. Foundation emphasis on positions and pull mechanics.', focus:'Focus: Build pull strength and technical base' },
+      { hl:'Volume Load',             tags:['tv-h','ti-m','tf'], tv:'Vol: High', ti:'Int: 73–79%', fr:'5×/wk', desc:'Slight intensity increase. Hang variations added. OHS programmed after snatch work. Clean pulls climbing toward 105%+ of clean max.', focus:'Focus: Accumulate pull and positional volume' },
+      { hl:'Peak Accumulation',       tags:['tv-h','ti-m','tf'], tv:'Vol: Peak', ti:'Int: 76–82%', fr:'5×/wk', desc:'Highest volume week. Doubles and triples with pulls at 105–110%. Front squats into 87–92% territory. Accessory work reduced slightly.', focus:'Focus: Overreaching stimulus' },
+      { hl:'Deload',                  tags:['tv-l','ti-l','tf'], tv:'Vol: −40%', ti:'Int: 65–72%', fr:'3×/wk', desc:'Volume drops sharply per Everett\'s programming model. Technical focus singles. Active recovery.', focus:'Focus: Supercompensation', deload:true },
+      { hl:'Intensity Ramp',          tags:['tv-m','ti-h','tf'], tv:'Vol: Mod', ti:'Int: 78–84%', fr:'5×/wk', desc:'Volume decreases, intensity rises. Shift toward singles and heavy doubles. Pull variation narrows. Front squats remain heavy.', focus:'Focus: Intensity block begins' },
+      { hl:'Heavy Singles Phase',     tags:['tv-m','ti-h','tf'], tv:'Vol: Mod', ti:'Int: 82–88%', fr:'5×/wk', desc:'Heavy singles introduced on competition lifts. Pulls at 108–112% of lift max. Front squats at 90–95%.', focus:'Focus: Transition to competition specificity' },
+      { hl:'Peak Intensification',    tags:['tv-m','ti-pk','tf'], tv:'Vol: Low-Mod', ti:'Int: 85–92%', fr:'5×/wk', desc:'Near-max singles. Highest intensity week of M2. Pull volume reduces to protect recovery. Squats still heavy.', focus:'Focus: Overreach before deload' },
+      { hl:'Deload',                  tags:['tv-l','ti-l','tf'], tv:'Vol: −40%', ti:'Int: 68–75%', fr:'3×/wk', desc:'Standard deload. Technical singles. Prepare CNS for peaking block.', focus:'Focus: Prepare for peak', deload:true },
+      { hl:'Peak Entry',              tags:['tv-l','ti-pk','tf'], tv:'Vol: Low', ti:'Int: 88–93%', fr:'4–5×/wk', desc:'Volume stripped. Heavy singles on snatch and C&J. Pulls remain but reduced. Squats peak. Accessory work minimal.', focus:'Focus: Express accumulated strength' },
+      { hl:'Heavy Singles Block',     tags:['tv-l','ti-pk','tf'], tv:'Vol: Low', ti:'Int: 90–97%', fr:'4–5×/wk', desc:'90%+ singles across all primary lifts. Opener attempts. Front squat to max. Pull volume very low.', focus:'Focus: Lock in competition numbers' },
+      { hl:'Taper',                   tags:['tv-l','ti-h','tf'], tv:'Vol: Minimal', ti:'Int: 88–93%', fr:'3–4×/wk', desc:'Volume reduced. Maintain intensity through heavy singles. Protect recovery capacity.', focus:'Focus: Taper — arrive fresh and sharp' },
+      { hl:'Competition Week',        tags:['tv-l','ti-pk','tf'], tv:'Vol: Minimal', ti:'Int: Opener only', fr:'1–2×/wk', desc:'Openers only Mon/Tue. Full rest thereafter. Competition day: express everything accumulated over 12 weeks.', focus:'Strength: Technical precision, structural resilience', deload:true },
+    ],
+    exercises: {
+      'Snatch Variations': {
+        'Snatch (Full)':              '5×3 early → 5×1 late. 70–97%. Core primary. Every session.',
+        'Hang Snatch – Above Knee':   '4×3 @ 70–80%. M1–M2. Position and second pull.',
+        'Hang Snatch – Below Knee':   '3×3 @ 65–75%. M1. Back angle and lat engagement.',
+        'Power Snatch':               '3×3 @ 65–75%. Speed and diagnostic. Present all mesos.',
+        'Snatch from Blocks':         '4×3 @ 75–85%. Second pull overload. M1–M2.',
+        'Snatch Balance':             '4×3 @ 85–100%. Receiving position. M1–M2.',
+        'Muscle Snatch':              'Warm-up / technical. Light, M1.',
+        'Snatch Pull + Snatch':       'Complex. 4×(1+2). M1–M2.',
+      },
+      'Clean & Jerk Variations': {
+        'Clean & Jerk (Full)':        '5×(2+1) M1 → 5×(1+1) M3. Volume then intensity arc.',
+        'Clean (No Jerk)':            '5×3 @ 75–85%. M1–M2. Independent clean volume.',
+        'Hang Clean – Above/Below':   '4×3 @ 70–80%. M1–M2.',
+        'Power Clean':                '3×3. Speed developer and diagnostic tool.',
+        'Jerk from Rack':             '5×2–3 @ 78–90%. Independent jerk development.',
+        'Push Jerk':                  '4×3 @ 70–80%. Dip-drive and bar path.',
+      },
+      'Squats': {
+        'Front Squat':                '✓ Major movement. 4×3–5 @ 82–92% FS. Every C&J session.',
+        'Back Squat':                 '3×/wk. 4×5 @ 78–90%. Structural and general strength.',
+        'Overhead Squat':             '4×3 @ 70–80% snatch. Technical builder.',
+        'Pause Front Squat (2–3s)':   '3×3 @ 70–80% FS. M1. Positional strength.',
+      },
+      'Pulls': {
+        'Snatch Pull':                '4×4 @ 100–112% snatch. Pull-heavy philosophy; mirrors Chinese.',
+        'Clean Pull':                 '4×4 @ 100–110% clean. Core supplemental movement.',
+        'Snatch Pull from Deficit':   '4×3 @ 90–100% snatch. M1.',
+        'Clean Pull from Deficit':    '4×3 @ 95–105% clean. M1.',
+        'Snatch High Pull':           '3×4 @ 80–90%. Technical phase M1.',
+        'Romanian Deadlift':          '3×5. Posterior chain. M1.',
+      },
+      'Pressing & Overhead': {
+        'Strict Press':               '4×5. Overhead strength. M1–M2.',
+        'Jerk Recovery':              '3×5–10s @ supramaximal. Receiving confidence.',
+      },
+      'Accessories': {
+        'Good Morning':               '3×8–10. Posterior chain. M1.',
+        'GHD / Hyperextension':       'Session finisher. M1–M2.',
+        'Core Work':                  'Systematic finisher. M1–M2.',
+      },
+    },
+  },
+
+  // ══════════════════════════════════════════════
+  pendlay: {
+    name: 'Pendlay',
+    sub: 'Pull Supremacy · Very High Volume · American Elite Results',
+    summary: [
+      ['Philosophy',      'Pull strength above everything — you cannot snatch what you cannot pull'],
+      ['Volume',          'Among the highest of any methodology; very high pull and squat volume'],
+      ['Intensity',       'Percentage-based; heavy pulls often exceed 110–120% of lift maxes'],
+      ['Frequency',       '5–6×/week; technically demanding sessions with high exercise count'],
+      ['Squat Emphasis',  'Both front and back squat at very high volumes; squats are a dedicated training block'],
+      ['Pull Emphasis',   'The highest pull volume of any methodology — pulls at 105–120%+ of lift maxes'],
+      ['Accessories',     'Moderate; RDLs, good mornings, some pressing work; less than Chinese'],
+      ['Deloads',         'Scheduled every 4th week; more moderate than Bulgarian but structured'],
+      ['Signature Trait', 'C&J is often split: clean and jerk programmed separately more than any other method'],
+      ['Risk',            'Very high fatigue accumulation; requires exceptional recovery and experienced athletes'],
+    ],
+    weeks: [
+      { hl:'Volume Foundation',       tags:['tv-h','ti-m','tf'], tv:'Vol: Very High', ti:'Int: 68–75%', fr:'5–6×/wk', desc:'Extremely high pull volume. Snatch + C&J triples and doubles. Pulls at 105–110% from the first week. Squats in dedicated blocks. C&J often separated — clean and jerk done independently.', focus:'Focus: Build massive pull and structural base' },
+      { hl:'Volume Load',             tags:['tv-h','ti-m','tf'], tv:'Vol: Very High', ti:'Int: 72–78%', fr:'5–6×/wk', desc:'Pull volume climbing. Deficit pulls added. Clean and jerk separated for independent volume. Squats heavy. Hang work supplemental.', focus:'Focus: Accumulate extreme pull volume' },
+      { hl:'Peak Accumulation',       tags:['tv-h','ti-m','tf'], tv:'Vol: Peak', ti:'Int: 75–82%', fr:'5–6×/wk', desc:'Highest volume week. Pulls at 112–118%. Squats into 88–95% territory. Very high exercise count per session. Athlete is deliberately fatigued before deload.', focus:'Focus: Maximum stimulus — overreaching' },
+      { hl:'Deload',                  tags:['tv-l','ti-l','tf'], tv:'Vol: −40%', ti:'Int: 65–72%', fr:'3–4×/wk', desc:'Volume drops sharply. Technical focus. Pulls significantly reduced. Full structural recovery before intensity block.', focus:'Focus: Recovery and supercompensation', deload:true },
+      { hl:'Intensity Ramp',          tags:['tv-m','ti-h','tf'], tv:'Vol: High', ti:'Int: 78–84%', fr:'5–6×/wk', desc:'Volume stays surprisingly high compared to other methods — Pendlay does not reduce volume as dramatically as Chinese in this phase. Intensity climbs while pull volume remains high.', focus:'Focus: High-volume intensification' },
+      { hl:'Heavy Singles + Volume',  tags:['tv-m','ti-h','tf'], tv:'Vol: High', ti:'Int: 82–88%', fr:'5–6×/wk', desc:'Heavy singles on competition lifts. Pulls at 110–115%. Squats heavy. Clean and jerk still often programmed separately. Volume remains higher than most other methods at this stage.', focus:'Focus: Heavy singles on a strong volume base' },
+      { hl:'Peak Intensification',    tags:['tv-m','ti-pk','tf'], tv:'Vol: Mod', ti:'Int: 86–93%', fr:'5×/wk', desc:'Near-max singles. Pulls at 112–120%. Highest intensity week of M2. Volume begins to reduce for the first time.', focus:'Focus: Overreach before deload' },
+      { hl:'Deload',                  tags:['tv-l','ti-l','tf'], tv:'Vol: −40%', ti:'Int: 68–75%', fr:'3–4×/wk', desc:'Standard deload. Technical singles. Protect CNS before competition peak.', focus:'Focus: Prepare for peak', deload:true },
+      { hl:'Peak Entry',              tags:['tv-l','ti-pk','tf'], tv:'Vol: Low', ti:'Int: 88–93%', fr:'4–5×/wk', desc:'Volume stripped. Heavy singles. Pull volume reduced significantly — the base is already built. Session structure begins mirroring competition.', focus:'Focus: Express pull strength through heavy singles' },
+      { hl:'Heavy Singles Block',     tags:['tv-l','ti-pk','tf'], tv:'Vol: Low', ti:'Int: 90–97%', fr:'4–5×/wk', desc:'90%+ singles. Opener attempts. Pulls still present but light — maintenance only. Front squats peak.', focus:'Focus: Lock in openers, confirm readiness' },
+      { hl:'Taper',                   tags:['tv-l','ti-h','tf'], tv:'Vol: Minimal', ti:'Int: 88–93%', fr:'3–4×/wk', desc:'Volume minimal. Intensity maintained. Athlete arrives at competition with exceptional structural and pull base.', focus:'Focus: Taper — protect the base' },
+      { hl:'Competition Week',        tags:['tv-l','ti-pk','tf'], tv:'Vol: Minimal', ti:'Int: Opener only', fr:'1–2×/wk', desc:'Openers only. Full rest. Athlete brings the highest pull and structural base of any method to competition.', focus:'Strength: Pull supremacy, structural power', deload:true },
+    ],
+    exercises: {
+      'Snatch Variations': {
+        'Snatch (Full)':              '5×3 early → 5×1 late. 70–97%. Core primary every session.',
+        'Hang Snatch – Above Knee':   '4×3 @ 70–80%. M1–M2. Technical variation.',
+        'Hang Snatch – Below Knee':   '3×3 @ 65–75%. M1. Heavy technical use.',
+        'Power Snatch':               '3×3 @ 65–75%. Speed developer and diagnostic.',
+        'Snatch from Blocks':         '4×3 @ 75–85%. Heavy use M1–M2. Overloads second pull.',
+        'Snatch Balance':             '4×3 @ 85–100% snatch. Receiving position.',
+        'Segment Snatch':             'Heavy M1 use. Pause drilling at key positions.',
+        'Snatch Pull + Snatch':       'Complex. M1–M2.',
+      },
+      'Clean & Jerk Variations': {
+        'Clean & Jerk (Full)':        'M1: Often separated. M2–M3: Full C&J. Volume then intensity.',
+        'Clean (No Jerk)':            '✓ Heavy use. More than any other method — cleans separated from jerks regularly.',
+        'Jerk from Rack':             '✓ Very heavy use. Independent jerk programming is a Pendlay hallmark.',
+        'Hang Clean – Above/Below':   '4×3 @ 70–80%. M1–M2.',
+        'Clean from Blocks':          '4×3 @ 80–88%. M1–M2.',
+        'Power Clean + Jerk':         '3×3. Diagnostic and speed work.',
+        'Push/Power Jerk':            '4×3 @ 70–80%. Jerk mechanics.',
+      },
+      'Squats': {
+        'Back Squat':                 '✓ Very high volume. 4×5 @ 80–92%. Dedicated squat blocks. 3–4×/wk.',
+        'Front Squat':                '✓ Heavy. 4×3–5 @ 82–92% FS. Every C&J session.',
+        'Overhead Squat':             '4×3 @ 70–80% snatch. Technical builder.',
+        'Pause Front Squat':          '3×3. M1. Positional strength.',
+        'Pause Back Squat':           '3×3. M1. Bottom-position strength.',
+      },
+      'Pulls': {
+        'Snatch Pull':                '✓ Highest volume of any method. 5×4–5 @ 105–120% snatch max.',
+        'Clean Pull':                 '✓ 5×4–5 @ 105–118% clean max. Volume and intensity both extreme.',
+        'Snatch Pull from Deficit':   '4×4 @ 92–105% snatch. Heavy M1–M2 use.',
+        'Clean Pull from Deficit':    '4×4 @ 97–108% clean. Heavy M1–M2.',
+        'Snatch High Pull':           '3×4 @ 85–95%. Technical and overload.',
+        'Romanian Deadlift':          '4×5. Posterior chain. M1. Heavy use.',
+        'Snatch/Clean Deadlift':      'Positional drill and occasional heavy set. M1.',
+      },
+      'Pressing & Overhead': {
+        'Strict Press':               '4×5. M1–M2. Overhead foundation.',
+        'Jerk Recovery':              'Supramaximal holds. M1–M2.',
+      },
+      'Accessories': {
+        'Good Morning':               '3×8–10. M1. Heavy posterior chain work.',
+        'GHD / Hyperextension':       'All mesos as finisher.',
+        'Core Work':                  'Systematic. M1–M2 finisher.',
+        'RDL':                        '4×5. M1. More posterior chain volume than Chinese or Soviet.',
+      },
+    },
+  },
+
+  // ══════════════════════════════════════════════
+  klokov: {
+    name: 'Klokov / Modern Russian',
+    sub: 'Complex-Heavy · Pause Variations · High Overhead Volume',
+    summary: [
+      ['Philosophy',      'Complexes, pauses, and overhead volume build technical mastery alongside strength'],
+      ['Volume',          'Moderate to high; higher overhead volume than any other method'],
+      ['Intensity',       'Percentage-based; complexes make tracking nuanced — one "set" = multiple movements'],
+      ['Frequency',       '4–5×/week; highly varied session structures with heavy complex use'],
+      ['Squat Emphasis',  'Front and back squat; overhead squat is treated as a near-primary lift'],
+      ['Pull Emphasis',   'Present but not dominant; pause variations more characteristic than pure pull volume'],
+      ['Accessories',     'Press in Snatch Grip unique; pause OHS, pause snatch, heavy overhead work throughout'],
+      ['Deloads',         'Less rigid than Soviet/Chinese; more athlete-driven; typically every 4th week'],
+      ['Signature Trait', 'Signature complexes: Snatch + OHS + Snatch Balance are session staples'],
+      ['Risk',            'Complex movement combinations increase technical failure risk under fatigue'],
+    ],
+    weeks: [
+      { hl:'Complex Foundation',      tags:['tv-h','ti-m','tf'], tv:'Vol: High', ti:'Int: 70–76%', fr:'5×/wk', desc:'Signature complexes introduced: Snatch + OHS + Snatch Balance. Heavy pause work throughout. Press in snatch grip included. High overhead volume from the first week.', focus:'Focus: Build overhead and positional strength through complexes' },
+      { hl:'Pause + Volume Block',    tags:['tv-h','ti-m','tf'], tv:'Vol: High', ti:'Int: 73–79%', fr:'5×/wk', desc:'Pause snatch and pause clean added. OHS programmed as a near-primary movement. Complex combinations expand. Pulls present but secondary to overhead and positional work.', focus:'Focus: Positional precision under moderate volume' },
+      { hl:'Peak Accumulation',       tags:['tv-h','ti-m','tf'], tv:'Vol: Peak', ti:'Int: 76–83%', fr:'5×/wk', desc:'Highest volume. Complex volume at peak. Pause OHS added. Snatch balance taken heavy. Pulls at 100–105%. High overhead session density.', focus:'Focus: Maximum overhead and complex volume' },
+      { hl:'Deload',                  tags:['tv-l','ti-l','tf'], tv:'Vol: −35%', ti:'Int: 65–72%', fr:'3–4×/wk', desc:'Volume reduces. Complexes simplified. Technical focus maintained. Overhead work continues at low intensity.', focus:'Focus: Recovery while maintaining overhead movement quality', deload:true },
+      { hl:'Intensity + Complexes',   tags:['tv-m','ti-h','tf'], tv:'Vol: Mod', ti:'Int: 78–84%', fr:'5×/wk', desc:'Volume decreases, intensity of complexes climbs. Pause snatch and clean at heavier loads. Snatch balance moving toward heavy singles. Overhead squat programmed as a max-effort movement.', focus:'Focus: Complex intensity ramp' },
+      { hl:'Heavy Complex Phase',     tags:['tv-m','ti-h','tf'], tv:'Vol: Mod', ti:'Int: 82–88%', fr:'5×/wk', desc:'Complexes at 82–88%. Pause OHS to near max. Snatch balance to daily max exposure. Press in snatch grip heavy. Pulls 100–108%.', focus:'Focus: Heavy complexes and overhead maxing' },
+      { hl:'Peak Intensification',    tags:['tv-m','ti-pk','tf'], tv:'Vol: Mod-Low', ti:'Int: 85–92%', fr:'5×/wk', desc:'Near-max singles on competition lifts. Complex work simplified — competition lift + one movement. Snatch balance to max. Pause work reduced.', focus:'Focus: Transition from complexes to near-max singles' },
+      { hl:'Deload',                  tags:['tv-l','ti-l','tf'], tv:'Vol: −35%', ti:'Int: 68–75%', fr:'3–4×/wk', desc:'Technical deload. Light complexes maintained for movement quality. Overhead work reduced in load but not eliminated.', focus:'Focus: Restore and prepare for peak', deload:true },
+      { hl:'Peak Entry',              tags:['tv-l','ti-pk','tf'], tv:'Vol: Low', ti:'Int: 88–93%', fr:'4–5×/wk', desc:'Volume stripped. Heavy singles. Complexes minimal. Snatch balance and OHS remain as warm-up and position tools. First true peaking week.', focus:'Focus: Express strength through heavy singles' },
+      { hl:'Heavy Singles Block',     tags:['tv-l','ti-pk','tf'], tv:'Vol: Low', ti:'Int: 90–97%', fr:'4–5×/wk', desc:'90%+ singles. Opener attempts. Snatch balance to max. Overhead squat remains heavy. Pause work minimal. Comp readiness check.', focus:'Focus: Competition numbers, confirm readiness' },
+      { hl:'Taper',                   tags:['tv-l','ti-h','tf'], tv:'Vol: Minimal', ti:'Int: 88–93%', fr:'3–4×/wk', desc:'Volume minimal. Overhead work maintained lightly. Intensity held through singles. Athlete preserves complex technique base.', focus:'Focus: Taper — maintain overhead without fatigue' },
+      { hl:'Competition Week',        tags:['tv-l','ti-pk','tf'], tv:'Vol: Minimal', ti:'Int: Opener only', fr:'1–2×/wk', desc:'Openers only. Snatch balance and OHS warm-ups maintained even comp week. Full rest before competition.', focus:'Strength: Technical precision, exceptional overhead position', deload:true },
+    ],
+    exercises: {
+      'Snatch Variations': {
+        'Snatch (Full)':              'Primary. All phases. Often the first component in a complex.',
+        'Snatch + OHS + Snatch Balance': '✓ Signature complex. One of the most common Klokov session structures.',
+        'Pause Snatch (above knee)':  '✓ Heavy use throughout all mesos. 2–3s pause, then complete.',
+        'Hang Snatch – Above Knee':   '4×3 @ 70–80%. M1–M2. Also used in complexes.',
+        'Power Snatch':               '3×3 @ 65–75%. Often starts a complex.',
+        'Snatch Balance':             '✓ Near-primary lift. Taken to heavy singles or daily max. Unique emphasis.',
+        'Pause OHS (3–5s)':           '✓ Signature movement. 3–5 second pause in receiving position. Very heavy.',
+        'Overhead Squat (heavy)':     '✓ Treated as a near-primary lift. 4×3–5 @ 80–90% snatch. More than any other method.',
+        'Drop Snatch':                'Technical warm-up. M1–M2.',
+        'Muscle Snatch':              'Technical. Light. Warm-up.',
+      },
+      'Clean & Jerk Variations': {
+        'Clean & Jerk (Full)':        'Primary. Volume → intensity arc. Sometimes in complex.',
+        'Pause Clean (above knee)':   '✓ Signature variation. 2–3s pause, then complete the clean. Heavy use.',
+        'Clean + Front Squat + Jerk': '✓ Complex. Clean, perform FS, then jerk. Builds positional strength.',
+        'Clean (No Jerk)':            '5×3 @ 75–85%. M1–M2. Pause variation used frequently.',
+        'Jerk from Rack':             '5×2–3 @ 78–90%. Independent jerk work.',
+        'Behind-the-Neck Jerk':       '✓ Present. Reinforces receiving position. Common in Klokov content.',
+        'Press in Snatch Grip':       '✓ Unique to this style. Overhead pressing with snatch-width grip. Shoulder stability.',
+        'Power Clean + Jerk':         'Diagnostic. Speed days.',
+      },
+      'Squats': {
+        'Front Squat':                '✓ Major lift. 4×3–5 @ 82–92% FS. Every C&J-day.',
+        'Back Squat':                 '3×/wk. 4×5 @ 78–90%. Structural strength.',
+        'Overhead Squat':             '✓ Near-primary. 4×3–5 @ 80–90% snatch. More volume than any other method.',
+        'Pause OHS (3–5s)':           '✓ Signature. Heavy positional holds. Unique to this methodology.',
+        'Pause Front Squat (3s)':     '3×3. Heavy. M1–M2.',
+      },
+      'Pulls': {
+        'Snatch Pull':                '4×4 @ 100–108% snatch. Present but secondary to overhead work.',
+        'Clean Pull':                 '4×4 @ 100–108% clean.',
+        'Deficit Pulls':              '4×3. M1. Supplemental.',
+        'Romanian Deadlift':          '3×5. M1. Posterior chain.',
+      },
+      'Pressing & Overhead': {
+        'Press in Snatch Grip':       '✓ Signature and unique. Heavy. 4×5 @ moderate-heavy. Shoulder stability.',
+        'Strict Press':               '4×5. Overhead development. M1–M2.',
+        'Push Press':                 '4×4. Jerk bridge. M1–M2.',
+        'Jerk Recovery':              '3×5–10s @ supramaximal.',
+      },
+      'Accessories': {
+        'Good Morning':               '3×8–10. M1.',
+        'GHD / Hyperextension':       'Session finisher.',
+        'Core Work':                  'Systematic. M1–M2.',
+        'OHS Complex Accessories':    'Overhead squat variations are used as both primary and accessory movements — unique to this system.',
+      },
+    },
+  },
+
+};
+
+// ── MESO LABELS ──────────────────────────────────────────────────────────────
+const MESO_LABELS = [
+  'Mesocycle 1 · Weeks 1–4 · Accumulation',
+  'Mesocycle 2 · Weeks 5–8 · Intensification',
+  'Mesocycle 3 · Weeks 9–12 · Peaking & Competition Prep',
+];
+const MESO_STARTS = [0, 4, 8];
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function render() {
+  const keyA = document.getElementById('selA').value;
+  const keyB = document.getElementById('selB').value;
+  const mA   = METHODS[keyA];
+  const mB   = METHODS[keyB];
+  const cA   = COLORS[keyA];
+  const cB   = COLORS[keyB];
+
+  // update CSS vars
+  document.documentElement.style.setProperty('--ca', cA.hex);
+  document.documentElement.style.setProperty('--ca-rgb', cA.rgb);
+  document.documentElement.style.setProperty('--cb', cB.hex);
+  document.documentElement.style.setProperty('--cb-rgb', cB.rgb);
+
+  // labels
+  document.querySelector('#selA').previousElementSibling.style.color = cA.hex;
+  document.querySelector('#selB').previousElementSibling.style.color = cB.hex;
+
+  renderMacro(mA, mB);
+  renderSummary(mA, mB, cA, cB);
+  renderExercises(mA, mB, cA, cB);
+}
+
+function renderMacro(mA, mB) {
+  const g = document.getElementById('macroGrid');
+  let html = '';
+
+  // header row
+  html += `<div class="mg-head axis"></div>`;
+  html += `<div class="mg-head cola"><div class="mg-name cola">${mA.name}</div><div class="mg-sub">${mA.sub}</div></div>`;
+  html += `<div class="mg-head colb"><div class="mg-name colb">${mB.name}</div><div class="mg-sub">${mB.sub}</div></div>`;
+
+  for (let i = 0; i < 12; i++) {
+    // meso banner
+    if (MESO_STARTS.includes(i)) {
+      html += `<div class="mg-meso">${MESO_LABELS[MESO_STARTS.indexOf(i)]}</div>`;
+    }
+
+    const wA = mA.weeks[i];
+    const wB = mB.weeks[i];
+    const dlA = wA.deload ? ' deload' : '';
+    const dlB = wB.deload ? ' deload' : '';
+    const axDl = (wA.deload && wB.deload) ? ' deload' : '';
+
+    html += `<div class="mg-axis${axDl}"><div class="mg-wn">W${i+1}</div><div class="mg-wt">${wA.deload ? 'Deload' : (i<4?'Accum':i<8?'Intens':'Peak')}</div></div>`;
+    html += `<div class="mg-cell cola${dlA}"><div class="mg-hl">${wA.hl}</div><div class="mg-tags">${wA.tags.map((t,j)=>`<span class="tag ${t}">${j===0?wA.tv:j===1?wA.ti:wA.fr}</span>`).join('')}</div><div class="mg-desc">${wA.desc}</div><div class="mg-focus">${wA.focus}</div></div>`;
+    html += `<div class="mg-cell colb${dlB}"><div class="mg-hl">${wB.hl}</div><div class="mg-tags">${wB.tags.map((t,j)=>`<span class="tag ${t}">${j===0?wB.tv:j===1?wB.ti:wB.fr}</span>`).join('')}</div><div class="mg-desc">${wB.desc}</div><div class="mg-focus">${wB.focus}</div></div>`;
+  }
+
+  g.innerHTML = html;
+}
+
+function renderSummary(mA, mB, cA, cB) {
+  const w = document.getElementById('summWrap');
+  const card = (m, cls) => `
+    <div class="summ-card">
+      <h3 class="${cls}">${m.name}</h3>
+      <ul class="attr-list">
+        ${m.summary.map(([k,v])=>`<li><span>${k}:</span> ${v}</li>`).join('')}
+      </ul>
+    </div>`;
+  w.innerHTML = card(mA,'cola') + card(mB,'colb');
+}
+
+function renderExercises(mA, mB, cA, cB) {
+  const t = document.getElementById('exTable');
+
+  // gather all categories
+  const cats = new Set([...Object.keys(mA.exercises), ...Object.keys(mB.exercises)]);
+  let html = `<thead><tr>
+    <th class="th-cat">Exercise</th>
+    <th class="th-a">${mA.name}</th>
+    <th class="th-b">${mB.name}</th>
+  </tr></thead><tbody>`;
+
+  for (const cat of cats) {
+    html += `<tr class="sec-row"><td colspan="3">${cat}</td></tr>`;
+    const exA = mA.exercises[cat] || {};
+    const exB = mB.exercises[cat] || {};
+    const exKeys = new Set([...Object.keys(exA), ...Object.keys(exB)]);
+    for (const ex of exKeys) {
+      const vA = exA[ex];
+      const vB = exB[ex];
+      const cA_absent = !vA || vA.startsWith('—') ? ' absent' : '';
+      const cB_absent = !vB || vB.startsWith('—') ? ' absent' : '';
+      html += `<tr>
+        <td class="td-n">${ex}</td>
+        <td class="td-a${cA_absent}">${vA || '— Not present'}</td>
+        <td class="td-b${cB_absent}">${vB || '— Not present'}</td>
+      </tr>`;
+    }
+  }
+
+  html += '</tbody>';
+  t.innerHTML = html;
+}
+
+// init
+render();
+</script>
+</body>
+</html>
